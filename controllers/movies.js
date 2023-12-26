@@ -57,7 +57,7 @@ const deleteMovieById = async (req, res, next) => {
     const movie = await Movie.findById(movieId);
 
     if (movie === null) {
-      return next(new NotFound('Фильм не найдена'));
+      return next(new NotFound('Фильм не найден'));
     }
     if (movie.owner.toString() !== userId) {
       return next(new Forbidden('Вы не можете удалить чужой фильм'));

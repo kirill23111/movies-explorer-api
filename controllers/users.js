@@ -20,9 +20,7 @@ const getUsers = async (req, res, next) => {
 
 const createUser = async (registrationUserDto) => {
     const {
-      name = 'Жак-Ив Кусто',
-      about = 'Исследователь',
-      avatar = 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
+      name,
       email,
       password,
     } = registrationUserDto;
@@ -30,8 +28,6 @@ const createUser = async (registrationUserDto) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await User.create({
       name,
-      about,
-      avatar,
       email,
       password: hashedPassword,
     });
@@ -41,11 +37,11 @@ const createUser = async (registrationUserDto) => {
 
   const updateProfile = (req, res, next) => {
     const userId = req.user.id;
-    const { name, about } = req.body;
+    const { name } = req.body;
 
     User.findByIdAndUpdate(
       userId,
-      { name, about },
+      { name },
       { new: true, runValidators: true },
     )
       .then((user) => {
@@ -56,7 +52,6 @@ const createUser = async (registrationUserDto) => {
           .status(SUCCESS)
           .send({
             name: user.name,
-            about: user.about,
           });
       })
       .catch((err) => {
@@ -67,6 +62,17 @@ const createUser = async (registrationUserDto) => {
       });
   };
 
+  const getFormattedUser = (user) => {
+    const jsonUser = JSON.parse(JSON.stringify(user));
+
+    return {
+      _id: jsonUser._id,
+      name: jsonUser.name,
+      email: jsonUser.email,
+      password: jsonUser.password,
+    };
+  };
+
   const registration = async (req, res, next) => {
     try {
       const createdUser = await createUser(req.body);
@@ -74,6 +80,7 @@ const createUser = async (registrationUserDto) => {
 
       return res.status(CREATED).json(formatedCreatedUser);
     } catch (error) {
+      console.log(error);
       if (error.code === 11000) {
         return next(new Conflict(`Пользователь с таким Email ${error.keyValue.email} уже существует`));
       }
