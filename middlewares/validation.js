@@ -16,6 +16,13 @@ const updateProfileValidation = celebrate({
   }),
 });
 
+const signinValidation = celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().email().required(),
+    password: Joi.string().required(),
+  }),
+});
+
 const createMovieValidation = celebrate({
   body: Joi.object().keys({
     country: Joi.string().required(),
@@ -43,4 +50,5 @@ module.exports = {
   deleteMovieByIdValidation,
   updateProfileValidation,
   createMovieValidation,
+  signinValidation,
 };

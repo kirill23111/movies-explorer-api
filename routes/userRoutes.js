@@ -11,5 +11,4 @@ router.get('/', authMiddleware, usersController.getUsers);
 // router.get('/me', authMiddleware, usersController.getCurrentUser);
 router.patch('/me', authMiddleware, updateProfileValidation, usersController.updateProfile);
 
-
 module.exports = router;

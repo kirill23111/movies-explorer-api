@@ -5,7 +5,7 @@ const Forbidden = require('../errors/Forbidden');
 const NotFound = require('../errors/NotFound');
 
 const getMovies = (req, res, next) => {
-  Movie.find()
+  Movie.find({ owner: req.user._id })
     .then((movies) => res.status(SUCCESS).json(movies))
     .catch((error) => next(error));
 };
@@ -67,7 +67,6 @@ const deleteMovieById = async (req, res, next) => {
 
     return res.json({ message: 'Фильм успешно удален' });
   } catch (error) {
-    console.error(error);
     return next(error);
   }
 };

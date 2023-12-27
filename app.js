@@ -1,13 +1,13 @@
 const express = require('express');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
-const { celebrate, Joi } = require('celebrate');
 const cors = require('cors');
 
 const app = express();
 const { errors } = require('celebrate'); // Добавляем обработку ошибок celebrate
 const {
   createUserValidation,
+  signinValidation,
 } = require('./middlewares/validation');
 const movieRoutes = require('./routes/movieRoutes');
 const userRoutes = require('./routes/userRoutes');
@@ -36,17 +36,7 @@ app.use('/movies', movieRoutes);
 app.use('/users', userRoutes);
 
 app.post('/signup', createUserValidation, registration);
-
-app.post(
-  '/signin',
-  celebrate({
-    body: Joi.object().keys({
-      email: Joi.string().email().required(),
-      password: Joi.string().required(),
-    }),
-  }),
-  login,
-);
+app.post('/signin', signinValidation, login);
 
 db.on('error', (error) => {
   console.error('Ошибка подключения к MongoDB:', error);
@@ -57,7 +47,7 @@ db.once('open', () => {
 });
 
 app.use(authMiddleware, (req, res) => {
-  if (res.headersSent === false) throw new NotFound('Не удалось обнаружить');
+  if (res.headersSent === false) throw new NotFound('Не удалось обнаружить страницу');
 });
 app.use(errorLogger);
 app.use(errors());

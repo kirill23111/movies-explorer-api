@@ -19,113 +19,116 @@ const getUsers = async (req, res, next) => {
 };
 
 const createUser = async (registrationUserDto) => {
-    const {
-      name,
-      email,
-      password,
-    } = registrationUserDto;
+  const {
+    name,
+    email,
+    password,
+  } = registrationUserDto;
     // Хеширование пароля перед сохранением в базу
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.create({
-      name,
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const user = await User.create({
+    name,
+    email,
+    password: hashedPassword,
+  });
+
+  return user;
+};
+
+const updateProfile = (req, res, next) => {
+  const userId = req.user.id;
+  const { name, email } = req.body;
+
+  User.findByIdAndUpdate(
+    userId,
+    { name, email },
+    { new: true, runValidators: true },
+  )
+    .then((user) => {
+      if (user === null) {
+        throw new NotFound('Запрашиваемый ресурс не найден. Пользователя не существует.');
+      }
+      return res
+        .status(SUCCESS)
+        .send({
+          name: user.name,
+          email: user.email,
+        });
+    })
+    .catch((err) => {
+      if (err.code === 11000) {
+        next(new Conflict('Данный email уже занят'));
+      }
+      if (err.name === 'ValidationError') {
+        return next(new BadRequest('Ошибка при обработке запроса. Пожалуйста, проверьте введенные данные.'));
+      }
+      return next(err);
+    });
+};
+
+const getFormattedUser = (user) => {
+  const jsonUser = JSON.parse(JSON.stringify(user));
+
+  return {
+    _id: jsonUser._id,
+    name: jsonUser.name,
+    email: jsonUser.email,
+    password: jsonUser.password,
+  };
+};
+
+const registration = async (req, res, next) => {
+  try {
+    const createdUser = await createUser(req.body);
+    const { password, ...formatedCreatedUser } = getFormattedUser(createdUser);
+
+    return res.status(CREATED).json(formatedCreatedUser);
+  } catch (error) {
+    if (error.code === 11000) {
+      return next(new Conflict(`Пользователь с таким Email ${error.keyValue.email} уже существует`));
+    }
+    if (error.name === 'ValidationError') {
+      return next(new BadRequest('Ошибка при обработке запроса. Пожалуйста, проверьте введенные данные.'));
+    }
+    return next(error);
+  }
+};
+
+const login = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+
+    // Находим пользователя по email
+    const user = await User.findOne({ email }).select('+password');
+
+    // Проверяем, найден ли пользователь
+    if (user === null) {
+      return next(new Conflict(`Пользователя с email ${email} не существует`));
+    }
+
+    // Проверяем, совпадает ли пароль
+    const passwordResult = bcrypt.compareSync(password, user.password);
+
+    if (passwordResult === false) throw new Internal('Неправильный пароль');
+
+    const jwtToken = generateJwtToken({
+      id: user.id,
       email,
-      password: hashedPassword,
     });
 
-    return user;
-  };
-
-  const updateProfile = (req, res, next) => {
-    const userId = req.user.id;
-    const { name } = req.body;
-
-    User.findByIdAndUpdate(
-      userId,
-      { name },
-      { new: true, runValidators: true },
-    )
-      .then((user) => {
-        if (user === null) {
-          throw new NotFound('Пользователь не найден');
-        }
-        return res
-          .status(SUCCESS)
-          .send({
-            name: user.name,
-          });
-      })
-      .catch((err) => {
-        if (err.name === 'ValidationError') {
-          return next(new BadRequest('Некорректные данные'));
-        }
-        return next(err);
-      });
-  };
-
-  const getFormattedUser = (user) => {
-    const jsonUser = JSON.parse(JSON.stringify(user));
-
-    return {
-      _id: jsonUser._id,
-      name: jsonUser.name,
-      email: jsonUser.email,
-      password: jsonUser.password,
-    };
-  };
-
-  const registration = async (req, res, next) => {
-    try {
-      const createdUser = await createUser(req.body);
-      const { password, ...formatedCreatedUser } = getFormattedUser(createdUser);
-
-      return res.status(CREATED).json(formatedCreatedUser);
-    } catch (error) {
-      console.log(error);
-      if (error.code === 11000) {
-        return next(new Conflict(`Пользователь с таким Email ${error.keyValue.email} уже существует`));
-      }
-      if (error.name === 'ValidationError') {
-        return next(new BadRequest('Ошибка при валидации'));
-      }
-      return next(error);
+    return res
+      .send({ token: jwtToken });
+  } catch (error) {
+    if (error.name === 'ValidationError') {
+      return next(new BadRequest('Ошибка при обработке запроса. Пожалуйста, проверьте введенные данные.'));
     }
-  };
+    return next(error);
+  }
+};
 
-  const login = async (req, res, next) => {
-    try {
-      const { email, password } = req.body;
-
-      // Находим пользователя по email
-      const user = await User.findOne({ email }).select('+password');
-
-      // Проверяем, найден ли пользователь
-      if (user === null) {
-        return next(new Internal(`Пользователя с email ${email} не существует`));
-      }
-
-      // Проверяем, совпадает ли пароль
-      const passwordResult = bcrypt.compareSync(password, user.password);
-
-      if (passwordResult === false) throw new Internal('Неправильный пароль');
-
-      const jwtToken = generateJwtToken({
-        id: user.id,
-        email,
-      });
-
-      return res
-        .send({ token: jwtToken });
-    } catch (error) {
-      if (error.name === 'ValidationError') {
-        return next(new BadRequest('Ошибка валидации'));
-      }
-      return next(error);
-    }
-  };
-
-  module.exports = {
-    getUsers,
-    login,
-    registration,
-    updateProfile,
-  };
+module.exports = {
+  getUsers,
+  login,
+  registration,
+  updateProfile,
+};
