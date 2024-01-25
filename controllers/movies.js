@@ -41,8 +41,9 @@ const createMovie = async (req, res, next) => {
       nameEN,
     });
 
-    return res.status(CREATED).send(movie);
-    // return res.status(CREATED).send(await movie.save());
+    const savedMovie = await movie.save();
+
+    return res.status(CREATED).send(savedMovie);
   } catch (error) {
     if (error.name === 'ValidationError') {
       return next(new BadRequest(`${error.message}`));
