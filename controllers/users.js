@@ -18,6 +18,19 @@ const getUsers = async (req, res, next) => {
   }
 };
 
+const getCurrentUser = async (req, res, next) => {
+  try {
+    const reqUserId = req.user.id;
+    const findedUser = await User.findById(reqUserId).lean();
+
+    if (findedUser === null) return next(new NotFound('Пользователь не найден'));
+
+    return res.json(findedUser);
+  } catch (error) {
+    return next(error);
+  }
+};
+
 const createUser = async (registrationUserDto) => {
   const {
     name,
@@ -131,4 +144,5 @@ module.exports = {
   login,
   registration,
   updateProfile,
+  getCurrentUser,
 };
