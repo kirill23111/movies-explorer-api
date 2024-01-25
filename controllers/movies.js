@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Movie = require('../models/movie');
 const { SUCCESS, CREATED } = require('../constans/codes');
 const BadRequest = require('../errors/BadRequest');
@@ -45,7 +46,7 @@ const createMovie = async (req, res, next) => {
 
     return res.status(CREATED).send(savedMovie);
   } catch (error) {
-    if (error.name === 'ValidationError') {
+    if (err instanceof mongoose.Error.ValidationError) {
       return next(new BadRequest(`${error.message}`));
     }
     return next(error);
