@@ -25,7 +25,7 @@ mongoose.connect(MONGO_URL);
 const db = mongoose.connection;
 
 app.use(cors({
-  origin: ['http://localhost:3000'],
+  origin: ['http://localhost:3000', 'https://diplommoviekirill.nomoredomainsmonster.ru'],
   credentials: true,
 }));
 app.use(express.json());

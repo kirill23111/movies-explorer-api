@@ -7,7 +7,7 @@ const NotFound = require('../errors/NotFound');
 
 const getMovies = (req, res, next) => {
   Movie.find({ owner: req.user._id })
-    .then((movie) => res.status(SUCCESS).json(movie))
+    .then((movies) => res.status(SUCCESS).json(movies))
     .catch((error) => next(error));
 };
 
