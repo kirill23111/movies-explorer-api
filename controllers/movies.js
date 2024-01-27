@@ -21,13 +21,13 @@ const createMovie = async (req, res, next) => {
       description,
       image,
       trailerLink,
-      nameRU,
-      nameEN,
       thumbnail,
       movieId,
+      nameRU,
+      nameEN,
     } = req.body;
-    const ownerId = req.user._id;
-    const movieNew = await Movie.create({
+
+    const movie = await new Movie({
       country,
       director,
       duration,
@@ -35,13 +35,16 @@ const createMovie = async (req, res, next) => {
       description,
       image,
       trailerLink,
+      thumbnail,
+      owner: req.user.id,
+      movieId,
       nameRU,
       nameEN,
-      thumbnail,
-      movieId,
-      owner: ownerId,
     });
-    res.status(CREATED).send({ data: movieNew });
+
+    const savedMovie = await movie.save();
+
+    return res.status(CREATED).send(savedMovie);
   } catch (error) {
     if (error instanceof mongoose.Error.ValidationError) {
       return next(new BadRequest(`${error.message}`));
