@@ -7,8 +7,8 @@ const NotFound = require('../errors/NotFound');
 
 const getMovies = async (req, res, next) => {
   try {
-    const reqUserId = mongoose.Types.ObjectId(req.user._id);
-    const findedMoves = await Movie.find({ owner: reqUserId });
+    // const reqUserId = mongoose.Types.ObjectId(req.user._id);
+    const findedMoves = await Movie.find({ owner: req.user._id });
 
     console.log(Movie, 'Movie');
     console.log(findedMoves, 'findedMoves');
@@ -56,6 +56,8 @@ const createMovie = async (req, res, next) => {
       nameRU,
       nameEN,
     });
+
+    console.log(req.user.id, 'req.user.id');
 
     const savedMovie = await movie.save();
 
