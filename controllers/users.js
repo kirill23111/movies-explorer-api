@@ -125,7 +125,7 @@ const login = async (req, res, next) => {
     if (passwordResult === false) throw new Internal('Неправильный пароль');
 
     const jwtToken = generateJwtToken({
-      id: user.id,
+      id: user._id,
       email,
     });
 
