@@ -12,22 +12,8 @@ const getMovies = (req, res, next) => {
 };
 
 const createMovie = async (req, res, next) => {
-  const { _id } = req.user;
-  const {
-    country,
-    director,
-    duration,
-    year,
-    description,
-    image,
-    trailerLink,
-    thumbnail,
-    movieId,
-    nameRU,
-    nameEN,
-  } = req.body;
   try {
-    const movie = await Movie.create({
+    const {
       country,
       director,
       duration,
@@ -35,16 +21,27 @@ const createMovie = async (req, res, next) => {
       description,
       image,
       trailerLink,
-      thumbnail,
-      owner: _id,
-      movieId,
       nameRU,
       nameEN,
+      thumbnail,
+      movieId,
+    } = req.body;
+    const ownerId = req.user._id;
+    const movieNew = await Movie.create({
+      country,
+      director,
+      duration,
+      year,
+      description,
+      image,
+      trailerLink,
+      nameRU,
+      nameEN,
+      thumbnail,
+      movieId,
+      owner: ownerId,
     });
-
-    const savedMovie = await movie.save();
-
-    return res.status(CREATED).send(savedMovie);
+    res.status(CREATED).send({ data: movieNew });
   } catch (error) {
     if (error instanceof mongoose.Error.ValidationError) {
       return next(new BadRequest(`${error.message}`));

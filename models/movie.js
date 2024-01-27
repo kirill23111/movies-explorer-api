@@ -1,4 +1,6 @@
-const mongoose = require('mongoose');
+const { mongoose } = require('mongoose');
+
+const { ObjectId } = mongoose.Types;
 const validator = require('validator');
 
 const movieSchema = new mongoose.Schema({
@@ -47,7 +49,8 @@ const movieSchema = new mongoose.Schema({
     },
   },
   owner: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: ObjectId,
+    ref: 'user',
     required: true,
   },
   movieId: {
