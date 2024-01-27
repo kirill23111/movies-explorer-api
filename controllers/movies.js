@@ -7,12 +7,12 @@ const NotFound = require('../errors/NotFound');
 
 const getMovies = (req, res, next) => {
   Movie.find({ owner: req.user._id })
-    .then((movies) => res.status(SUCCESS).json(movies))
+    .then((movies) => res.status(SUCCESS).send(movies))
     .catch((error) => next(error));
 };
 
 const createMovie = async (req, res, next) => {
-  try {
+  const { _id } = req.user.id;
     const {
       country,
       director,
@@ -26,8 +26,8 @@ const createMovie = async (req, res, next) => {
       nameRU,
       nameEN,
     } = req.body;
-
-    const movie = await new Movie({
+    try {
+    const movie = await Movie.create({
       country,
       director,
       duration,
@@ -36,7 +36,7 @@ const createMovie = async (req, res, next) => {
       image,
       trailerLink,
       thumbnail,
-      owner: req.user.id,
+      owner: _id,
       movieId,
       nameRU,
       nameEN,
