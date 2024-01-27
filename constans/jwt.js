@@ -3,12 +3,15 @@ require('dotenv').config();
 
 const { JWT_SECRET } = process.env;
 const jwtKey = 'authorization';
-const randomNumber = Math.floor(Math.random() * 10000000);
+const randomKey = `sda-dsa-sda-asd-asd`;
+const isProduction = process.env.NODE_ENV === 'production';
+let localJWT_SECRET = JWT_SECRET;
+if (JWT_SECRET === undefined && isProduction === false) localJWT_SECRET = `${randomKey}`;
 
 const generateJwtToken = (obj) => {
-  const token = jwt.sign(obj, JWT_SECRET, {
-    expiresIn: '7d',
-  });
+  if (JWT_SECRET === undefined && isProduction === true) throw new Error('JWT_SECRET не задан');
+
+  const token = jwt.sign(obj, localJWT_SECRET);
 
   return token;
 };
@@ -16,5 +19,5 @@ const generateJwtToken = (obj) => {
 module.exports = {
   generateJwtToken,
   jwtKey,
-  JWT_SECRET,
+  JWT_SECRET: localJWT_SECRET,
 };

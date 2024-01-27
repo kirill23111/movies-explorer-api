@@ -7,11 +7,7 @@ const NotFound = require('../errors/NotFound');
 
 const getMovies = async (req, res, next) => {
   try {
-    const findedMoves = await Movie.find({ owner: req.user._id });
-
-    console.log(Movie, 'Movie');
-    console.log(findedMoves, 'findedMoves');
-    console.log(req.user, 'req.user');
+    const findedMoves = await Movie.find({ owner: req.user.id });
 
     return res.status(SUCCESS).send(findedMoves);
   } catch (error) {
@@ -50,11 +46,7 @@ const createMovie = async (req, res, next) => {
       nameEN,
     });
 
-    console.log(req.user.id, 'req.user.id');
-
     const savedMovie = await movie.save();
-
-    // console.log(savedMovie);
 
     return res.status(CREATED).send(savedMovie);
   } catch (error) {
