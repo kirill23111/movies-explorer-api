@@ -5,15 +5,16 @@ const BadRequest = require('../errors/BadRequest');
 const Forbidden = require('../errors/Forbidden');
 const NotFound = require('../errors/NotFound');
 
-const getMovies =  async (req, res, next) => {
+const getMovies = async (req, res, next) => {
   try {
-    const findedMoves = await Movie.find({ owner: req.user._id });
+    const reqUserId = mongoose.Types.ObjectId(req.user._id);
+    const findedMoves = await Movie.find({ owner: reqUserId });
 
     console.log(Movie, 'Movie');
     console.log(findedMoves, 'findedMoves');
     console.log(req.user, 'req.user');
 
-    return res.status(SUCCESS).json(findedMoves);
+    return res.status(SUCCESS).send(findedMoves);
   } catch (error) {
     return next(error);
   }
