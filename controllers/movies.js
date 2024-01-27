@@ -6,8 +6,8 @@ const Forbidden = require('../errors/Forbidden');
 const NotFound = require('../errors/NotFound');
 
 const getMovies = (req, res, next) => {
-  Movie.find({ owner: req.user.id })
-    .then((movies) => res.status(SUCCESS).send(movies))
+  Movie.find({ owner: req.user._id })
+    .then((movies) => res.status(SUCCESS).json(movies))
     .catch((error) => next(error));
 };
 
@@ -42,11 +42,9 @@ const createMovie = async (req, res, next) => {
       nameEN,
     });
 
-    const savedMovie = await movie.save();
-
-    return res.status(CREATED).send(savedMovie);
+    return res.status(CREATED).send(await movie.save());
   } catch (error) {
-    if (error instanceof mongoose.Error.ValidationError) {
+    if (error.name === 'ValidationError') {
       return next(new BadRequest(`${error.message}`));
     }
     return next(error);

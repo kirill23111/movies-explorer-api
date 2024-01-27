@@ -17,10 +17,10 @@ const authMiddleware = require('./middlewares/auth');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const NotFound = require('./errors/NotFound');
 require('dotenv').config();
-
-const MONGO_URL = process.env.NODE_ENV === 'production' ? 'mongodb://127.0.0.1:27017/bitfilmsdb' : 'mongodb://127.0.0.1:27017/bitfilmsdb-dev';
+const { PORT = 3000, MONGO_URL = 'mongodb://127.0.0.1:27017/bitfilmsdb' } = process.env;
+// const MONGO_URL = process.env.NODE_ENV === 'production' ? 'mongodb://127.0.0.1:27017/bitfilmsdb' ;
 console.log(MONGO_URL);
-const { PORT = 3000 } = process.env;
+// const { PORT = 3000 } = process.env;
 mongoose.connect(MONGO_URL);
 const db = mongoose.connection;
 
