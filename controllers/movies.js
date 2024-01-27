@@ -12,7 +12,7 @@ const getMovies = (req, res, next) => {
 };
 
 const createMovie = async (req, res, next) => {
-  const { _id } = req.user.id;
+  const { _id } = req.user;
   const {
     country,
     director,
