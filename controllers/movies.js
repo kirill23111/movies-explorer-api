@@ -7,7 +7,7 @@ const NotFound = require('../errors/NotFound');
 
 const getMovies =  async (req, res, next) => {
   try {
-    const findedMoves = Movie.find({ owner: req.user._id });
+    const findedMoves = await Movie.find({ owner: req.user._id });
 
     console.log(Movie, 'Movie');
     console.log(findedMoves, 'findedMoves');
