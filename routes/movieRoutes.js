@@ -8,7 +8,7 @@ const {
 
 const router = express.Router();
 
-router.get('/', moviesController.getMovies);
+router.get('/', authMiddleware, moviesController.getMovies);
 router.post('/', [authMiddleware, createMovieValidation], moviesController.createMovie);
 router.delete('/:movieId', [authMiddleware, deleteMovieByIdValidation], moviesController.deleteMovieById);
 

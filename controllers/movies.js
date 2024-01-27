@@ -5,10 +5,24 @@ const BadRequest = require('../errors/BadRequest');
 const Forbidden = require('../errors/Forbidden');
 const NotFound = require('../errors/NotFound');
 
-const getMovies = (req, res, next) => {
-  Movie.find({ owner: req.user._id })
-    .then((movies) => res.status(SUCCESS).json(movies))
-    .catch((error) => next(error));
+const getMovies =  async (req, res, next) => {
+  try {
+    const findedMoves = Movie.find({ owner: req.user._id });
+
+    console.log(Movie, 'Movie');
+    console.log(findedMoves, 'findedMoves');
+    console.log(req.user, 'req.user');
+
+    return res.status(SUCCESS).json(findedMoves);
+  } catch (error) {
+    return next(error);
+  }
+
+  // const findedMoves = Movie.find({ owner: req.user._id });
+
+  // Movie.find({ owner: req.user._id })
+  //   .then((movies) => res.status(SUCCESS).json(movies))
+  //   .catch((error) => next(error));
 };
 
 const createMovie = async (req, res, next) => {
@@ -44,7 +58,7 @@ const createMovie = async (req, res, next) => {
 
     const savedMovie = await movie.save();
 
-    console.log(savedMovie);
+    // console.log(savedMovie);
 
     return res.status(CREATED).send(savedMovie);
   } catch (error) {
