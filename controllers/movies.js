@@ -13,20 +13,20 @@ const getMovies = (req, res, next) => {
 
 const createMovie = async (req, res, next) => {
   const { _id } = req.user.id;
-    const {
-      country,
-      director,
-      duration,
-      year,
-      description,
-      image,
-      trailerLink,
-      thumbnail,
-      movieId,
-      nameRU,
-      nameEN,
-    } = req.body;
-    try {
+  const {
+    country,
+    director,
+    duration,
+    year,
+    description,
+    image,
+    trailerLink,
+    thumbnail,
+    movieId,
+    nameRU,
+    nameEN,
+  } = req.body;
+  try {
     const movie = await Movie.create({
       country,
       director,
@@ -46,7 +46,7 @@ const createMovie = async (req, res, next) => {
 
     return res.status(CREATED).send(savedMovie);
   } catch (error) {
-    if (err instanceof mongoose.Error.ValidationError) {
+    if (error instanceof mongoose.Error.ValidationError) {
       return next(new BadRequest(`${error.message}`));
     }
     return next(error);
